@@ -7,7 +7,6 @@ import exception
 import requests
 import telegram
 from dotenv import load_dotenv
-from telegram.ext import CommandHandler, Updater
 
 load_dotenv()
 
@@ -41,6 +40,7 @@ def check_tokens() -> bool:
     """Проверка доступности переменных."""
     checker = all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
     return checker
+
 
 def get_api_answer(current_timestamp) -> dict:
     """
