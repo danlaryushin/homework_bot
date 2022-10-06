@@ -15,7 +15,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-format = logging.Format(
+format = logging.Formatter(
     '%(asctime)s - %(funcName)s - [%(levelname)s] - %(message)s'
 )
 handlers = [
