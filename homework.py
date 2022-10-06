@@ -18,10 +18,10 @@ logger.setLevel(logging.DEBUG)
 format = logging.Format(
     '%(asctime)s - %(funcName)s - [%(levelname)s] - %(message)s'
 )
-handlers=[
+handlers = [
     logging.FileHandler(os.path.expanduser('~/log.txt')),
     logging.StreamHandler(sys.stdout)
-    ]
+]
 
 
 PRACTICUM_TOKEN = os.getenv('YP_TOKEN')
@@ -134,7 +134,8 @@ def main() -> None:
 
     try:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        send_message(bot, f'Бот запущен!')
+        msg = 'Бот запущен!'
+        send_message(bot, f'{msg}')
     except telegram.error.InvalidToken as error:
         message = f'Ошибка при создании бота: {error}'
         logger.critical(message + '- Программа остановлена.')
