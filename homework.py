@@ -1,24 +1,27 @@
+import json
 import logging
 import os
 import sys
 import time
 from http import HTTPStatus
 
-import exception
 import requests
 import telegram
 from dotenv import load_dotenv
+
+import exception
 
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
+format = logging.Format(
     '%(asctime)s - %(funcName)s - [%(levelname)s] - %(message)s'
 )
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+handlers=[
+    logging.FileHandler(os.path.expanduser('~/log.txt')),
+    logging.StreamHandler(sys.stdout)
+    ]
 
 
 PRACTICUM_TOKEN = os.getenv('YP_TOKEN')
@@ -39,8 +42,7 @@ HOMEWORK_STATUSES = {
 
 def check_tokens() -> bool:
     """Проверка доступности переменных."""
-    checker = all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
-    return checker
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def get_api_answer(current_timestamp) -> dict:
@@ -63,7 +65,11 @@ def get_api_answer(current_timestamp) -> dict:
         message = f'URL недоступен: {error}'
         logger.error(message)
         raise requests.exceptions.RequestException(message)
-    return response.json()
+    try:
+        return response.json()
+    except json.JSONDecodeError:
+        logging.error('Сервер вернул невалидный json')
+        send_message('Сервер вернул невалидный json')
 
 
 def check_response(response) -> list:
@@ -121,8 +127,6 @@ def send_message(bot, message) -> None:
 
 def main() -> None:
     """Основная логика работы бота."""
-    logger.info('Бот запущен!')
-
     if not check_tokens():
         message = 'Отсутствует одна из переменных окружения'
         logger.critical(message + '- Программа остановлена.')
@@ -130,6 +134,7 @@ def main() -> None:
 
     try:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
+        send_message(bot, f'Бот запущен!')
     except telegram.error.InvalidToken as error:
         message = f'Ошибка при создании бота: {error}'
         logger.critical(message + '- Программа остановлена.')
